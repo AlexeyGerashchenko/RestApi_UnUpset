@@ -30,5 +30,7 @@ go.work.sum
 #data
 /data
 
+#macOS
+.DS_Store
 
 # /data/data.sql...
