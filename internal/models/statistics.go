@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// Храню статистику по дням - каждый день отдельно
+
 type Statistics struct {
 	gorm.Model
 	UserID         uint

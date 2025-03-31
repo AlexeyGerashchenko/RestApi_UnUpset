@@ -18,16 +18,6 @@ func (t ToDoUC) Create(toDo *models.ToDo) error {
 	panic("implement me")
 }
 
-func (t ToDoUC) Update(toDo *models.ToDo) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (t ToDoUC) Delete(id uint) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (t ToDoUC) GetByID(id uint) (*models.ToDo, error) {
 	//TODO implement me
 	panic("implement me")
@@ -39,6 +29,16 @@ func (t ToDoUC) GetByUserID(userID uint) ([]models.ToDo, error) {
 }
 
 func (t ToDoUC) MarkAsDone(id uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t ToDoUC) Update(toDo *models.ToDo) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t ToDoUC) Delete(id uint) error {
 	//TODO implement me
 	panic("implement me")
 }
