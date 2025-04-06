@@ -9,8 +9,8 @@ import (
 
 type Statistics struct {
 	gorm.Model
-	UserID         uint
-	Date           time.Time
-	CompletedTasks int
-	FocusDuration  time.Duration
+	UserID         uint          `gorm:"index;not null"`
+	Date           time.Time     `gorm:"type:date;index;not null"`
+	CompletedTasks int           `gorm:"default:0"`
+	FocusDuration  time.Duration `gorm:"default:0"`
 }

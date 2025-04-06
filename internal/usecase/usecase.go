@@ -12,9 +12,10 @@ type UserUseCase interface {
 	GetAll() ([]*models.User, error)
 	Update(user *models.User) error
 	ChangePassword(id uint, oldP, newP string) error
+	IsUserNameTaken(username string) (bool, error)
 	ChangeUserName(id uint, newName string) error
 	Delete(id uint) error
-	Login(email, password string) (string, error)
+	Login(email, password string) (*models.User, error)
 }
 
 type ToDoUseCase interface {

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"RestApi_UnUpset/internal/delivery/middleware"
 	"RestApi_UnUpset/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -30,9 +31,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/register", h.register)
 	}
 
-	api := router.Group("/api", h.userIdentity) // middleware для аутентификации
+	protected := router.Group("/protected")
+	protected.Use(middleware.AuthMiddleware())
 	{
-		user := api.Group("/user")
+		user := protected.Group("/user")
 		{
 			user.GET("/", h.getAllUsers)
 			user.GET("/:id", h.getByID)
@@ -42,7 +44,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			user.DELETE("/:id", h.deleteUser)
 		}
 
-		todos := api.Group("/todos")
+		todos := protected.Group("/todos")
 		{
 			todos.POST("/", h.createToDo)
 			todos.GET("/", h.getUserToDos)
@@ -52,7 +54,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			todos.DELETE("/:id", h.deleteToDo)
 		}
 
-		statistics := api.Group("/statistics")
+		statistics := protected.Group("/statistics")
 		{
 			statistics.POST("/", h.createStatistics)
 			statistics.GET("/", h.getUserStatistics)
@@ -62,7 +64,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			statistics.DELETE("/:id", h.deleteStatistics)
 		}
 
-		timers := api.Group("/timers")
+		timers := protected.Group("/timers")
 		{
 			timers.POST("/", h.createTimer)
 			timers.GET("/", h.getUserTimers)

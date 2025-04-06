@@ -7,6 +7,6 @@ import (
 
 type Timer struct {
 	gorm.Model
-	UserID   uint
-	Duration time.Duration
+	UserID   uint          `gorm:"index;not null"`
+	Duration time.Duration `gorm:"not null"`
 }
