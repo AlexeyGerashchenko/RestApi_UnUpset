@@ -26,15 +26,13 @@ func (r *UserRepo) GetByID(id uint) (*models.User, error) {
 
 func (r *UserRepo) GetByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.db.First(&user, "email", email).Error
-
+	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
 func (r *UserRepo) GetAll() ([]*models.User, error) {
 	var users []*models.User
 	err := r.db.Find(&users).Error
-
 	return users, err
 }
 
@@ -47,12 +45,9 @@ func (r *UserRepo) Delete(id uint) error {
 }
 
 func (r *UserRepo) IsUsernameExists(username string) (bool, error) {
-	var exists bool
+	var count int64
 	err := r.db.Model(&models.User{}).
-		Select("count(*) > 0").
 		Where("username = ?", username).
-		Find(&exists).
-		Error
-
-	return exists, err
+		Count(&count).Error
+	return count > 0, err
 }

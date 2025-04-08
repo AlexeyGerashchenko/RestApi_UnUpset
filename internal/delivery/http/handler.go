@@ -31,14 +31,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/register", h.register)
 	}
 
-	protected := router.Group("/protected")
+	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		user := protected.Group("/user")
 		{
 			user.GET("/", h.getAllUsers)
 			user.GET("/:id", h.getByID)
-			user.PUT("/:id", h.updateUser)
+			//user.PUT("/:id", h.updateUser) // TODO: Определить, нужен ли мне этот эндпоинт
 			user.PATCH("/password/:id", h.changePassword)
 			user.PATCH("/username/:id", h.changeUserName)
 			user.DELETE("/:id", h.deleteUser)
@@ -64,14 +64,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			statistics.DELETE("/:id", h.deleteStatistics)
 		}
 
-		timers := protected.Group("/timers")
-		{
-			timers.POST("/", h.createTimer)
-			timers.GET("/", h.getUserTimers)
-			timers.GET("/:id", h.getTimersByID)
-			timers.PUT("/:id", h.updateTimer)
-			timers.DELETE("/:id", h.deleteTimer)
-		}
+		//timers := protected.Group("/timers")
+		//{
+		//	timers.POST("/", h.createTimer)
+		//	timers.GET("/", h.getUserTimers)
+		//	timers.GET("/:id", h.getTimersByID)
+		//	timers.PUT("/:id", h.updateTimer)
+		//	timers.DELETE("/:id", h.deleteTimer)
+		//}
 	}
 
 	return router

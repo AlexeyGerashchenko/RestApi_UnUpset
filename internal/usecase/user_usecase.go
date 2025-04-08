@@ -25,8 +25,7 @@ func (u UserUC) Create(user *models.User) error {
 }
 
 func (u UserUC) GetByID(id uint) (*models.User, error) {
-	//TODO implement me
-	panic("implement me")
+	return u.userRepo.GetByID(id)
 }
 
 func (u UserUC) GetAll() ([]*models.User, error) {
@@ -58,8 +57,25 @@ func (u UserUC) ChangePassword(id uint, oldP, newP string) error {
 }
 
 func (u UserUC) ChangeUserName(id uint, newName string) error {
-	//TODO implement me
-	panic("implement me")
+	user, err := u.userRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if user.UserName == newName {
+		return errors.New("new username should be different from the old one")
+	}
+
+	isTaken, err := u.IsUserNameTaken(newName)
+	if err != nil {
+		return err
+	}
+	if isTaken {
+		return errors.New("this username is already taken")
+	}
+
+	user.UserName = newName
+	return u.userRepo.Update(user)
 }
 
 func (u UserUC) IsUserNameTaken(username string) (bool, error) {
@@ -67,14 +83,13 @@ func (u UserUC) IsUserNameTaken(username string) (bool, error) {
 }
 
 func (u UserUC) Delete(id uint) error {
-	//TODO implement me
-	panic("implement me")
+	return u.userRepo.Delete(id)
 }
 
 func (u UserUC) Login(email, pw string) (*models.User, error) {
 	user, err := u.userRepo.GetByEmail(email)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid email or password")
 	}
 	if !password.CheckPassword(pw, user.Password) {
 		return nil, errors.New("invalid email or password")

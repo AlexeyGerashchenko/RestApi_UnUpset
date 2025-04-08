@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	h "net/http"
 	"os"
 )
 
@@ -32,7 +33,13 @@ func main() {
 	useCase := usecase.NewUseCase(repo)
 	handler := http.NewHandler(useCase)
 	router := gin.Default()
-	store := cookie.NewStore([]byte("secret"))
+	store := cookie.NewStore([]byte(os.Getenv("COOKIE_SECRET")))
+	store.Options(sessions.Options{
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: h.SameSiteLaxMode,
+		MaxAge:   86400 * 7,
+	})
 	router.Use(sessions.Sessions("mysession", store))
 	router = handler.InitRoutes()
 	if err := router.Run(":8080"); err != nil {

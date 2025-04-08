@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	UserName   string       `gorm:"size:100;not null"`
+	UserName   string       `gorm:"size:50;not null"`
 	Email      string       `gorm:"size:100;uniqueIndex;not null"`
 	Password   string       `gorm:"size:255;not null"`
 	ToDos      []ToDo       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
