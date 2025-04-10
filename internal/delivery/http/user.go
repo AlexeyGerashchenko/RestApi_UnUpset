@@ -4,12 +4,23 @@ import (
 	"RestApi_UnUpset/internal/delivery/dto"
 	"RestApi_UnUpset/internal/delivery/password"
 	"RestApi_UnUpset/internal/models"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
+// @Summary Вход пользователя
+// @Description Аутентификация пользователя по email и паролю
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body dto.LoginRequest true "Данные для входа"
+// @Success 200 {object} dto.Response
+// @Failure 400 {object} dto.Response
+// @Failure 500 {object} dto.Response
+// @Router /auth/login [post]
 func (h *Handler) login(c *gin.Context) {
 	var req dto.LoginRequest
 
@@ -34,6 +45,16 @@ func (h *Handler) login(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.NewSuccessResponse(nil))
 }
 
+// @Summary Регистрация пользователя
+// @Description Создание нового пользователя
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body dto.RegisterUserRequest true "Данные для регистрации"
+// @Success 201 {object} dto.Response{data=dto.UserResponse}
+// @Failure 400 {object} dto.Response
+// @Failure 500 {object} dto.Response
+// @Router /auth/register [post]
 func (h *Handler) register(c *gin.Context) {
 	var req dto.RegisterUserRequest
 
@@ -69,6 +90,13 @@ func (h *Handler) register(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.NewSuccessResponse(response))
 }
 
+// @Summary Получение списка всех пользователей
+// @Description Получение списка всех зарегистрированных пользователей
+// @Tags users
+// @Produce json
+// @Success 200 {object} dto.Response{data=[]dto.UserResponse}
+// @Failure 500 {object} dto.Response
+// @Router /api/user [get]
 func (h *Handler) getAllUsers(c *gin.Context) {
 	users, err := h.userUseCase.GetAll()
 	if err != nil {
@@ -89,6 +117,17 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse(response))
 }
 
+// @Summary Получение информации о пользователе
+// @Description Получение информации о конкретном пользователе по ID
+// @Tags users
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "ID пользователя" Format(uint)
+// @Success 200 {object} dto.Response{data=dto.UserResponse}
+// @Failure 400 {object} dto.Response
+// @Failure 401 {object} dto.Response
+// @Failure 403 {object} dto.Response
+// @Router /api/user/{id} [get]
 func (h *Handler) getByID(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -124,11 +163,18 @@ func (h *Handler) getByID(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse(response))
 }
 
-func (h *Handler) updateUser(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-
+// @Summary Изменение пароля
+// @Description Изменение пароля пользователя
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Param input body dto.ChangePasswordRequest true "Данные для смены пароля"
+// @Success 200 {object} dto.Response
+// @Failure 400 {object} dto.Response
+// @Failure 401 {object} dto.Response
+// @Failure 403 {object} dto.Response
+// @Router /api/user/password/{id} [patch]
 func (h *Handler) changePassword(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -164,6 +210,18 @@ func (h *Handler) changePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse("password changed successfully"))
 }
 
+// @Summary Изменение имени пользователя
+// @Description Изменение имени пользователя
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Param input body dto.ChangeUsernameRequest true "Новое имя пользователя"
+// @Success 200 {object} dto.Response
+// @Failure 400 {object} dto.Response
+// @Failure 401 {object} dto.Response
+// @Failure 403 {object} dto.Response
+// @Router /api/user/username/{id} [patch]
 func (h *Handler) changeUserName(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -199,6 +257,16 @@ func (h *Handler) changeUserName(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse("username changed successfully"))
 }
 
+// @Summary Удаление пользователя
+// @Description Удаление пользователя по ID
+// @Tags users
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Success 200 {object} dto.Response
+// @Failure 400 {object} dto.Response
+// @Failure 401 {object} dto.Response
+// @Failure 403 {object} dto.Response
+// @Router /api/user/{id} [delete]
 func (h *Handler) deleteUser(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

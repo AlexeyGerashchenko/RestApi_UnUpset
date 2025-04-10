@@ -1,16 +1,15 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-// Храню статистику по дням - каждый день отдельно
-
+// Statistics представляет модель для хранения статистических данных пользователя
 type Statistics struct {
-	gorm.Model
-	UserID         uint          `gorm:"index;not null"`
-	Date           time.Time     `gorm:"type:date;index;not null"`
-	CompletedTasks int           `gorm:"default:0"`
-	FocusDuration  time.Duration `gorm:"default:0"`
+	gorm.Model                   // Встраиваем базовую модель GORM для полей ID, CreatedAt, UpdatedAt, DeletedAt
+	UserID         uint          `gorm:"index;not null"` // Идентификатор пользователя, к которому относится статистика
+	CompletedTasks int           `gorm:"default:0"`      // Количество завершенных задач, по умолчанию 0
+	FocusDuration  time.Duration `gorm:"default:0"`      // Общая продолжительность концентрации (работы с таймером)
 }

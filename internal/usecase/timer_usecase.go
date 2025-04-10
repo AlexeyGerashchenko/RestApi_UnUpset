@@ -5,35 +5,42 @@ import (
 	"RestApi_UnUpset/internal/repository"
 )
 
+// TimerUC реализует бизнес-логику для работы с таймерами
 type TimerUC struct {
-	timerRepo repository.TimerRepository
+	timerRepo    repository.TimerRepository // Репозиторий для работы с данными таймеров
+	statisticsUC StatisticsUC               // Сервис для работы со статистикой
 }
 
-func NewTimerUC(timerRepo repository.TimerRepository) *TimerUC {
-	return &TimerUC{timerRepo}
+// NewTimerUC создает новый экземпляр сервиса таймеров
+func NewTimerUC(timerRepo repository.TimerRepository, statisticsUC StatisticsUC) *TimerUC {
+	return &TimerUC{
+		timerRepo:    timerRepo,
+		statisticsUC: statisticsUC,
+	}
 }
 
+// Create добавляет новый таймер и обновляет статистику времени фокусировки
 func (t TimerUC) Create(timer *models.Timer) error {
-	//TODO implement me
-	panic("implement me")
+	// Создаем запись таймера в базе данных
+	if err := t.timerRepo.Create(timer); err != nil {
+		return err
+	}
+
+	// Добавляем время фокусировки в статистику пользователя
+	return t.statisticsUC.AddFocusDuration(timer.UserID, timer.Duration)
 }
 
-func (t TimerUC) Update(timer *models.Timer) error {
-	//TODO implement me
-	panic("implement me")
-}
-
+// Delete удаляет таймер по его идентификатору
 func (t TimerUC) Delete(id uint) error {
-	//TODO implement me
-	panic("implement me")
+	return t.timerRepo.Delete(id)
 }
 
+// GetByID возвращает таймер по его идентификатору
 func (t TimerUC) GetByID(id uint) (*models.Timer, error) {
-	//TODO implement me
-	panic("implement me")
+	return t.timerRepo.GetByID(id)
 }
 
-func (t TimerUC) GetByUserID(userID uint) ([]models.Timer, error) {
-	//TODO implement me
-	panic("implement me")
+// GetByUserID возвращает все таймеры конкретного пользователя
+func (t TimerUC) GetByUserID(userID uint) ([]*models.Timer, error) {
+	return t.timerRepo.GetByUserID(userID)
 }

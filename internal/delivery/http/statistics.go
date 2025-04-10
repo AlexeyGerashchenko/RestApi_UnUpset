@@ -1,31 +1,32 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"RestApi_UnUpset/internal/delivery/dto"
+	"net/http"
 
-func (h *Handler) createStatistics(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
+	"github.com/gin-gonic/gin"
+)
 
+// @Summary Получение статистики пользователя
+// @Description Получение статистики о выполненных задачах и времени фокусировки
+// @Tags statistics
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.Response{data=dto.StatisticsResponse}
+// @Failure 401 {object} dto.Response
+// @Failure 500 {object} dto.Response
+// @Router /api/statistics [get]
 func (h *Handler) getUserStatistics(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-func (h *Handler) getStatisticsByID(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-func (h *Handler) getWithFilter(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
+	userID := c.GetUint("user_id")
 
-func (h *Handler) updateStatistics(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
+	statistics, err := h.statisticsUseCase.GetByUserID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NewErrorResponse("Failed to get statistics"))
+		return
+	}
 
-func (h *Handler) deleteStatistics(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	c.JSON(http.StatusOK, dto.NewSuccessResponse(dto.StatisticsResponse{
+		CompletedTasks: statistics.CompletedTasks,
+		FocusDuration:  statistics.FocusDuration.String(),
+	}))
 }

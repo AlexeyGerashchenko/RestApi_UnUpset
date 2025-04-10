@@ -1,0 +1,813 @@
+definitions:
+  RestApi_UnUpset_internal_delivery_dto.ChangePasswordRequest:
+    properties:
+      new_password:
+        description: Новый пароль пользователя (обязательное поле, минимум 5 символов)
+        minLength: 5
+        type: string
+      old_password:
+        description: Текущий пароль пользователя (обязательное поле)
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.ChangeUsernameRequest:
+    properties:
+      new_username:
+        description: Новое имя пользователя (обязательное поле, от 3 до 50 символов)
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - new_username
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.CreateTimerRequest:
+    properties:
+      duration:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        description: Продолжительность таймера (обязательное поле, минимум 1 наносекунда)
+        minimum: 1
+    required:
+    - duration
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.CreateToDoRequest:
+    properties:
+      text:
+        description: Текст задачи (обязательное поле, от 1 до 500 символов)
+        maxLength: 500
+        minLength: 1
+        type: string
+    required:
+    - text
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.LoginRequest:
+    properties:
+      email:
+        description: Email пользователя (обязательное поле)
+        type: string
+      password:
+        description: Пароль пользователя (обязательное поле)
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.RegisterUserRequest:
+    properties:
+      email:
+        description: Email пользователя (обязательное поле)
+        type: string
+      password:
+        description: Пароль пользователя (обязательное поле, минимум 5 символов)
+        minLength: 5
+        type: string
+      username:
+        description: Имя пользователя (обязательное поле, от 3 до 100 символов)
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.Response:
+    properties:
+      data:
+        description: Данные ответа (опционально)
+      message:
+        description: Сообщение (обычно используется для ошибок)
+        type: string
+      status:
+        description: Статус ответа (success/error)
+        type: string
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.StatisticsResponse:
+    properties:
+      completed_tasks:
+        description: Количество выполненных задач
+        type: integer
+      focus_duration:
+        description: Общая продолжительность фокусировки в читаемом формате
+        type: string
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.TimerResponse:
+    properties:
+      duration:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        description: Продолжительность таймера в наносекундах
+      id:
+        description: Идентификатор таймера
+        type: integer
+      user_id:
+        description: Идентификатор пользователя, создавшего таймер
+        type: integer
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.ToDorResponse:
+    properties:
+      done:
+        description: Статус выполнения задачи (true - выполнена, false - не выполнена)
+        type: boolean
+      id:
+        description: Идентификатор задачи
+        type: integer
+      text:
+        description: Текст задачи
+        type: string
+      user_id:
+        description: Идентификатор пользователя, создавшего задачу
+        type: integer
+    type: object
+  RestApi_UnUpset_internal_delivery_dto.UserResponse:
+    properties:
+      created_at:
+        description: Дата создания учетной записи
+        type: string
+      email:
+        description: Email пользователя
+        type: string
+      id:
+        description: Идентификатор пользователя
+        type: integer
+      username:
+        description: Имя пользователя
+        type: string
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+host: localhost:8080
+info:
+  contact: {}
+  description: API для приложения UnUpset
+  title: UnUpset API
+  version: "1.0"
+paths:
+  /api/statistics:
+    get:
+      description: Получение статистики о выполненных задачах и времени фокусировки
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.StatisticsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение статистики пользователя
+      tags:
+      - statistics
+  /api/timers:
+    get:
+      description: Получение списка всех таймеров текущего пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.TimerResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - UserAuth: []
+      summary: Получение всех таймеров пользователя
+      tags:
+      - timers
+    post:
+      consumes:
+      - application/json
+      description: Создание нового таймера для текущего пользователя
+      parameters:
+      - description: Данные таймера
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.CreateTimerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.TimerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Создание нового таймера
+      tags:
+      - timers
+  /api/timers/{id}:
+    delete:
+      description: Удаление существующего таймера (только своего)
+      parameters:
+      - description: ID таймера
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - UserAuth: []
+      summary: Удаление таймера
+      tags:
+      - timers
+    get:
+      description: Получение конкретного таймера по его ID
+      parameters:
+      - description: ID таймера
+        format: uint
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.TimerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение таймера по ID
+      tags:
+      - timers
+  /api/todos:
+    get:
+      description: Получение списка всех задач текущего пользователя (не выполненных)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ToDorResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение всех задач пользователя (не выполненных)
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Создание новой задачи для текущего пользователя
+      parameters:
+      - description: Данные задачи
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.CreateToDoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ToDorResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Создание новой задачи
+      tags:
+      - todos
+  /api/todos/{id}:
+    delete:
+      description: Удаление существующей задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление задачи
+      tags:
+      - todos
+    get:
+      description: Получение конкретной задачи по её ID
+      parameters:
+      - description: ID задачи
+        format: uint
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ToDorResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение задачи по ID
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Обновление текста существующей задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новые данные задачи
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.CreateToDoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ToDorResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление задачи
+      tags:
+      - todos
+  /api/todos/{id}/done:
+    patch:
+      description: Отметить существующую задачу как выполненную
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Отметить задачу как выполненную
+      tags:
+      - todos
+  /api/user:
+    get:
+      description: Получение списка всех зарегистрированных пользователей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.UserResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Получение списка всех пользователей
+      tags:
+      - users
+  /api/user/{id}:
+    delete:
+      description: Удаление пользователя по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Удаление пользователя
+      tags:
+      - users
+    get:
+      description: Получение информации о конкретном пользователе по ID
+      parameters:
+      - description: ID пользователя
+        format: uint
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение информации о пользователе
+      tags:
+      - users
+  /api/user/password/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Изменение пароля пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для смены пароля
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Изменение пароля
+      tags:
+      - users
+  /api/user/username/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Изменение имени пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новое имя пользователя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.ChangeUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Изменение имени пользователя
+      tags:
+      - users
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя по email и паролю
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Вход пользователя
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового пользователя
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/RestApi_UnUpset_internal_delivery_dto.Response'
+      summary: Регистрация пользователя
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    description: Для тестирования в Swagger UI (на макбуке логин работает только через
+      хром, в сафари протестировать не получается)
+    in: cookie
+    name: mysession
+    type: apiKey
+swagger: "2.0"
