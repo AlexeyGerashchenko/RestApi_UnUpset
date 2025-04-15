@@ -16,11 +16,11 @@ func NewUserUC(userRepo repository.UserRepository) *UserUC {
 }
 
 func (u UserUC) Create(user *models.User) error {
-	hashedPassword, err := password.HashPassword(user.Password)
-	if err != nil {
-		return err
-	}
-	user.Password = hashedPassword
+	//hashedPassword, err := password.HashPassword(user.Password)
+	//if err != nil {
+	//	return err
+	//}
+	//user.Password = hashedPassword
 	return u.userRepo.Create(user)
 }
 
@@ -92,7 +92,7 @@ func (u UserUC) Login(email, pw string) (*models.User, error) {
 		return nil, errors.New("invalid email or password")
 	}
 	if !password.CheckPassword(pw, user.Password) {
-		return nil, errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password2")
 	}
 	return user, nil
 }

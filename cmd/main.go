@@ -41,7 +41,7 @@ func main() {
 		MaxAge:   86400 * 7,
 	})
 	router.Use(sessions.Sessions("mysession", store))
-	router = handler.InitRoutes()
+	router = handler.InitRoutes(router)
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}

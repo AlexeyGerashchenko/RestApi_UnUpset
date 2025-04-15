@@ -14,8 +14,7 @@ func NewToDoUC(toDoRepo repository.ToDoRepository) *ToDoUC {
 }
 
 func (t ToDoUC) Create(toDo *models.ToDo) error {
-	//TODO implement me
-	panic("implement me")
+	return t.toDoRepo.Create(toDo)
 }
 
 func (t ToDoUC) GetByID(id uint) (*models.ToDo, error) {
