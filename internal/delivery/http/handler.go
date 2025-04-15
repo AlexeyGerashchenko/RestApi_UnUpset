@@ -22,8 +22,7 @@ func NewHandler(useCase *usecase.UseCase) *Handler {
 	}
 }
 
-func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.New()
+func (h *Handler) InitRoutes(router *gin.Engine) *gin.Engine {
 
 	auth := router.Group("/auth")
 	{
